@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import Header from '@/components/common/Header';
 import { Skeleton } from '@/components/ui/skeleton';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, type CollectionReference } from 'firebase/firestore';
 import type { LeavePermit } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 
@@ -142,7 +142,8 @@ export default function Home() {
   
   const pendingPermitsQuery = useMemoFirebase(() => {
     if (!firestore || user?.role !== 'admin') return null;
-    return query(collection(firestore, 'leave-permits'), where('status', '==', 'Pending'));
+    const permitsCollection = collection(firestore, 'leave-permits') as CollectionReference<LeavePermit>;
+    return query(permitsCollection, where('status', '==', 'Pending'));
   }, [firestore, user?.role]);
 
   const { data: pendingPermits } = useCollection<LeavePermit>(pendingPermitsQuery);
