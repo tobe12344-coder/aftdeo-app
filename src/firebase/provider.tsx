@@ -26,7 +26,7 @@ export function FirebaseProvider(props: FirebaseProviderProps) {
   return (
     <FirebaseContext.Provider value={{firebaseApp, auth, firestore}}>
       {children}
-      <FirebaseErrorListener />
+      {process.env.NODE_ENV === 'development' && <FirebaseErrorListener />}
     </FirebaseContext.Provider>
   );
 }
