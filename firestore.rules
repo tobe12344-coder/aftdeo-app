@@ -1,0 +1,239 @@
+/**
+ * @fileoverview Firestore Security Rules for Prototyping.
+ *
+ * Core Philosophy:
+ * This ruleset prioritizes rapid prototyping and enforces a role-based access control model.
+ * Access is primarily controlled by the `role` field on the `/users/{userId}` document.
+ * Data shape validation is minimal to allow for flexible data structures during development.
+ *
+ * Data Structure:
+ * - /users/{userId}: Stores user profiles with `role` (admin, employee, security, receptionist) and `status` (pending, approved).
+ * - /guests/{guestId}: Guestbook entries.
+ * - /attendance/{attendanceId}: Employee attendance records.
+ * - /waste/{wasteId}: B3 waste records.
+ * - /sarpras/{sarprasId}: Infrastructure and facility items.
+ * - /announcements/{announcementId}: Public announcements.
+ * - /overtime/{overtimeId}: Employee overtime records.
+ * - /safety-briefings/{briefingId}: Safety briefing log entries.
+ * - /leave-permits/{permitId}: Employee leave permit records.
+ *
+ * Key Security Decisions:
+ * - User listing is disabled for security reasons.
+ * - Public read access is granted for announcements.
+ * - Default security posture: Role-based access with explicit deny rules for unpermitted operations.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Checks if the user is signed in.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Authentication is required for many operations.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the user's role is admin.
+     * @path /users/{userId}
+     * @allow User with role "admin" (read/write)
+     * @deny User without "admin" role (read/write)
+     * @principle Role-based access control.
+     */
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    /**
+     * @description Checks if the user's role is employee.
+     * @path /users/{userId}
+     * @allow User with role "employee" (read/write)
+     * @deny User without "employee" role (read/write)
+     * @principle Role-based access control.
+     */
+    function isEmployee() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'employee';
+    }
+
+    /**
+     * @description Checks if the user's role is security.
+     * @path /users/{userId}
+     * @allow User with role "security" (read/write)
+     * @deny User without "security" role (read/write)
+     * @principle Role-based access control.
+     */
+    function isSecurity() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'security';
+    }
+
+    /**
+     * @description Checks if the user's role is receptionist.
+     * @path /users/{userId}
+     * @allow User with role "receptionist" (read/write)
+     * @deny User without "receptionist" role (read/write)
+     * @principle Role-based access control.
+     */
+    function isReceptionist() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'receptionist';
+    }
+
+     /**
+      * @description Checks if the user is the owner of the document based on user ID.
+      * @path /users/{userId}
+      * @allow User with their own userId (read/write)
+      * @deny User with another userId (read/write)
+      * @principle Ownership-based access control.
+      */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Guestbook entries.
+     * @path /guests/{guestId}
+     * @allow Admin, security, or receptionist to create a guest entry.
+     * @deny Any other user trying to create a guest entry.
+     * @principle Role-based access control.
+     */
+    match /guests/{guestId} {
+      allow get: if true;
+      allow list: if true;
+
+      allow create: if isAdmin() || isSecurity() || isReceptionist();
+      allow update: if isAdmin() || isSecurity() || isReceptionist();
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description Daily attendance records.
+     * @path /attendance/{attendanceId}
+     * @allow Admin or employee to create an attendance record.
+     * @deny Any other user trying to create an attendance record.
+     * @principle Role-based access control.
+     */
+    match /attendance/{attendanceId} {
+      allow get: if isAdmin() || isEmployee();
+      allow list: if isAdmin() || isEmployee();
+
+      allow create: if isAdmin() || isEmployee();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description B3 waste records.
+     * @path /waste/{wasteId}
+     * @allow Admin, security, or employee to create a waste record.
+     * @deny Any other user trying to create a waste record.
+     * @principle Role-based access control.
+     */
+    match /waste/{wasteId} {
+      allow get: if isAdmin() || isSecurity() || isEmployee();
+      allow list: if isAdmin() || isSecurity() || isEmployee();
+
+      allow create: if isAdmin() || isSecurity() || isEmployee();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description Infrastructure and facility items.
+     * @path /sarpras/{sarprasId}
+     * @allow Admin or employee to create a sarpras record.
+     * @deny Any other user trying to create a sarpras record.
+     * @principle Role-based access control.
+     */
+    match /sarpras/{sarprasId} {
+      allow get: if isAdmin() || isEmployee();
+      allow list: if isAdmin() || isEmployee();
+
+      allow create: if isAdmin() || isEmployee();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description User profiles.
+     * @path /users/{userId}
+     * @allow Only the owner can read/write their own profile. Admins can read all.
+     * @deny Non-owners trying to access other user profiles.
+     * @principle Ownership-based access control.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if false; // Disallowing listing of all users
+
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if false; // User deletion is not allowed
+    }
+
+    /**
+     * @description Announcements for the public page.
+     * @path /announcements/{announcementId}
+     * @allow All users can read announcements. Only admins can create/update/delete.
+     * @deny Non-admins trying to create/update/delete announcements.
+     * @principle Public read access with admin-only writes.
+     */
+    match /announcements/{announcementId} {
+      allow get: if true;
+      allow list: if true;
+
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description Employee overtime records.
+     * @path /overtime/{overtimeId}
+     * @allow Admin, security, or employee to create an overtime record.
+     * @deny Any other user trying to create an overtime record.
+     * @principle Role-based access control.
+     */
+    match /overtime/{overtimeId} {
+      allow get: if isAdmin() || isSecurity() || isEmployee();
+      allow list: if isAdmin() || isSecurity() || isEmployee();
+
+      allow create: if isAdmin() || isSecurity() || isEmployee();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description Safety briefing log entries.
+     * @path /safety-briefings/{briefingId}
+     * @allow Admin, security, or employee to create a safety briefing record.
+     * @deny Any other user trying to create a safety briefing record.
+     * @principle Role-based access control.
+     */
+    match /safety-briefings/{briefingId} {
+      allow get: if isAdmin() || isSecurity() || isEmployee();
+      allow list: if isAdmin() || isSecurity() || isEmployee();
+
+      allow create: if isAdmin() || isSecurity() || isEmployee();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+     /**
+      * @description Employee leave permit records.
+      * @path /leave-permits/{permitId}
+      * @allow Admin, security, or employee to create a leave permit record.
+      * @deny Any other user trying to create a leave permit record.
+      * @principle Role-based access control.
+      */
+    match /leave-permits/{permitId} {
+      allow get: if isAdmin() || isSecurity() || isEmployee();
+      allow list: if isAdmin() || isSecurity() || isEmployee();
+
+      allow create: if isAdmin() || isSecurity() || isEmployee();
+      allow update: if isAdmin() || isSecurity();
+      allow delete: if isAdmin();
+    }
+  }
+}

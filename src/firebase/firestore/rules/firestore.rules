@@ -1,0 +1,151 @@
+/**
+ * @file Firestore Security Rules
+ * @version 2
+ *
+ * @description
+ * This ruleset enforces a role-based access control model with user-ownership for user profiles.
+ * Guests, attendance, waste, and infrastructure data are publicly readable, but require authentication and specific roles for write access.
+ *
+ * @data-structure
+ * - /users/{userId}: User profiles, accessible only to the owning user and authorized roles.
+ * - /guests/{guestId}: Guestbook entries, publicly readable, write access limited to specific roles.
+ * - /attendance/{attendanceId}: Attendance records, publicly readable, write access limited to specific roles.
+ * - /waste/{wasteId}: Waste records, publicly readable, write access limited to specific roles.
+ * - /sarpras/{sarprasId}: Infrastructure data, publicly readable, write access limited to specific roles.
+ *
+ * @key-security-decisions
+ * - User listing is explicitly denied for privacy.
+ * - Public read access is granted for guest, attendance, waste and infrastructure data.
+ * - Role-based access control is used for write operations on guest, attendance, waste and infrastructure data.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Checks if the request is made by an authenticated user.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user's ID matches the requested user ID.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the authenticated user's ID matches the existing document's user ID and the document exists
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user has the 'admin' role.
+     */
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'admin';
+    }
+
+    /**
+     * @description Checks if the authenticated user has the 'employee' role.
+     */
+    function isEmployee() {
+      return isSignedIn() && request.auth.token.role == 'employee';
+    }
+
+    /**
+     * @description Checks if the authenticated user has the 'security' role.
+     */
+    function isSecurity() {
+      return isSignedIn() && request.auth.token.role == 'security';
+    }
+
+    /**
+     * @description
+     * Security rules for user profiles.
+     * @path /users/{userId}
+     * @allow (get) User with matching {userId} can read their own profile.
+     * @allow (create) User can create their own profile if the user ID matches.
+     * @deny (list) No one can list all user profiles.
+     * @deny (update) User cannot update another user profile.
+     * @deny (delete) User cannot delete another user profile.
+     * @principle Enforces document ownership for reads and writes.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.uid == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.uid == resource.data.uid;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description
+     * Security rules for guestbook entries.
+     * @path /guests/{guestId}
+     * @allow (get, list) Any user can read guestbook entries.
+     * @allow (create) Only admin, employee, or security roles can create guestbook entries.
+     * @deny (update) Only admin, employee, or security roles can update guestbook entries.
+     * @deny (delete) Only admin, employee, or security roles can delete guestbook entries.
+     * @principle Allows public read access with role-based write access.
+     */
+    match /guests/{guestId} {
+      allow get, list: if true;
+      allow create: if isAdmin() || isEmployee() || isSecurity();
+      allow update: if isAdmin() || isEmployee() || isSecurity();
+      allow delete: if isAdmin() || isEmployee() || isSecurity();
+    }
+
+    /**
+     * @description
+     * Security rules for attendance records.
+     * @path /attendance/{attendanceId}
+     * @allow (get, list) Any user can read attendance records.
+     * @allow (create) Only admin, employee, or security roles can create attendance records.
+     * @deny (update) Only admin, employee, or security roles can update attendance records.
+     * @deny (delete) Only admin, employee, or security roles can delete attendance records.
+     */
+    match /attendance/{attendanceId} {
+      allow get, list: if true;
+      allow create: if isAdmin() || isEmployee() || isSecurity();
+      allow update: if isAdmin() || isEmployee() || isSecurity();
+      allow delete: if isAdmin() || isEmployee() || isSecurity();
+    }
+
+    /**
+     * @description
+     * Security rules for B3 waste records.
+     * @path /waste/{wasteId}
+     * @allow (get, list) Any user can read B3 waste records.
+     * @allow (create) Only admin, employee, or security roles can create B3 waste records.
+     * @deny (update) Only admin, employee, or security roles can update B3 waste records.
+     * @deny (delete) Only admin, employee, or security roles can delete B3 waste records.
+     */
+    match /waste/{wasteId} {
+      allow get, list: if true;
+      allow create: if isAdmin() || isEmployee() || isSecurity();
+      allow update: if isAdmin() || isEmployee() || isSecurity();
+      allow delete: if isAdmin() || isEmployee() || isSecurity();
+    }
+
+    /**
+     * @description
+     * Security rules for infrastructure and facility items.
+     * @path /sarpras/{sarprasId}
+     * @allow (get, list) Any user can read infrastructure data.
+     * @allow (create) Only admin, employee, or security roles can create infrastructure data.
+     * @deny (update) Only admin, employee, or security roles can update infrastructure data.
+     * @deny (delete) Only admin, employee, or security roles can delete infrastructure data.
+     */
+    match /sarpras/{sarprasId} {
+      allow get, list: if true;
+      allow create: if isAdmin() || isEmployee() || isSecurity();
+      allow update: if isAdmin() || isEmployee() || isSecurity();
+      allow delete: if isAdmin() || isEmployee() || isSecurity();
+    }
+  }
+}

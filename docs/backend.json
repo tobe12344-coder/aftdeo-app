@@ -1,0 +1,308 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Represents a user of the application.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "photoURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "The URL of the user's profile picture."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "employee", "security", "receptionist"],
+          "description": "The user's role."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "approved"],
+          "description": "The user's account status."
+        }
+      },
+      "required": ["uid", "email", "role", "status"]
+    },
+    "Guest": {
+      "title": "Guest",
+      "description": "Represents a guest entry in the guestbook.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "alamat": {
+          "type": "string"
+        },
+        "perusahaan": {
+          "type": "string"
+        },
+        "yangDikunjungi": {
+          "type": "string"
+        },
+        "maksudKunjungan": {
+          "type": "string"
+        },
+        "tandaPengenal": {
+          "type": "string"
+        },
+        "zona": {
+          "type": "string",
+          "enum": ["Bebas", "Terbatas", "Terlarang"]
+        },
+        "signature": {
+          "type": "string",
+          "format": "uri",
+          "description": "The guest's signature as a data URI."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["name", "alamat", "perusahaan", "yangDikunjungi", "maksudKunjungan", "tandaPengenal", "zona", "signature", "timestamp"]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "Represents an employee attendance record for a day.",
+      "type": "object",
+      "properties": {
+        "employeeId": {
+          "type": "string"
+        },
+        "employeeName": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Present", "Clocked Out", "Absent", "On Leave"]
+        },
+        "clockIn": {
+          "type": "string",
+          "format": "time"
+        },
+        "clockOut": {
+          "type": "string",
+          "format": "time"
+        },
+        "leaveOut": {
+          "type": "string",
+          "format": "time"
+        },
+        "returnIn": {
+          "type": "string",
+          "format": "time"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": ["employeeId", "employeeName", "date", "status"]
+    },
+    "Waste": {
+      "title": "Waste",
+      "description": "Represents a B3 waste data entry.",
+      "type": "object",
+      "properties": {
+        "jenis": {
+          "type": "string"
+        },
+        "sumber": {
+          "type": "string"
+        },
+        "jumlah": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "tanggalMasuk": {
+          "type": "string",
+          "format": "date"
+        },
+        "status": {
+          "type": "string"
+        },
+        "perlakuan": {
+          "type": "string"
+        },
+        "kodeManifestasi": {
+          "type": "string"
+        },
+        "catatan": {
+          "type": "string"
+        }
+      },
+      "required": ["jenis", "sumber", "jumlah", "unit", "tanggalMasuk", "status", "perlakuan"]
+    },
+    "Infrastructure": {
+      "title": "Infrastructure",
+      "description": "Represents a facility or infrastructure item.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Baik", "Perlu Perbaikan", "Rusak"]
+        },
+        "lastMaintenance": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": ["name", "category", "location", "status", "lastMaintenance"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Represents an announcement for the public profile page.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the announcement."
+        },
+        "content": {
+          "type": "string",
+          "description": "The content of the announcement."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The time the announcement was posted."
+        }
+      },
+      "required": ["title", "content", "timestamp"]
+    },
+    "Overtime": {
+      "title": "Overtime",
+      "description": "Represents an employee overtime record.",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string" },
+        "employeeName": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "startTime": { "type": "string", "format": "time" },
+        "endTime": { "type": "string", "format": "time" },
+        "duration": { "type": "number", "description": "Duration in hours" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Rejected"] }
+      },
+      "required": ["employeeId", "employeeName", "date", "startTime", "endTime", "duration", "description", "status"]
+    },
+    "SafetyBriefing": {
+      "title": "SafetyBriefing",
+      "description": "Represents a safety briefing log entry.",
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "topic": {
+          "type": "string"
+        },
+        "conductor": {
+          "type": "string"
+        },
+        "attendees": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "notes": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["date", "topic", "conductor", "attendees", "timestamp"]
+    },
+    "LeavePermit": {
+      "title": "LeavePermit",
+      "description": "Represents an employee leave permit record.",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string" },
+        "employeeName": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "leaveTime": { "type": "string", "format": "time" },
+        "purpose": { "type": "string" },
+        "securityOnDuty": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Rejected", "On Leave", "Returned", "Butuh Klarifikasi"] },
+        "approvedBy": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "securityOutSignature": { "type": "string", "format": "uri" },
+        "actualLeaveTime": { "type": "string", "format": "time" },
+        "actualReturnTime": { "type": "string", "format": "time" }
+      },
+      "required": ["employeeId", "employeeName", "date", "leaveTime", "purpose", "securityOnDuty", "status", "timestamp"]
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/guests/{guestId}": {
+      "schema": { "$ref": "#/entities/Guest" },
+      "description": "Guestbook entries."
+    },
+    "/attendance/{attendanceId}": {
+      "schema": { "$ref": "#/entities/Attendance" },
+      "description": "Daily attendance records."
+    },
+    "/waste/{wasteId}": {
+      "schema": { "$ref": "#/entities/Waste" },
+      "description": "B3 waste records."
+    },
+    "/sarpras/{sarprasId}": {
+      "schema": { "$ref": "#/entities/Infrastructure" },
+      "description": "Infrastructure and facility items."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles."
+    },
+    "/announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/Announcement" },
+      "description": "Announcements for the public page."
+    },
+    "/overtime/{overtimeId}": {
+      "schema": { "$ref": "#/entities/Overtime" },
+      "description": "Employee overtime records."
+    },
+    "/safety-briefings/{briefingId}": {
+      "schema": { "$ref": "#/entities/SafetyBriefing" },
+      "description": "Safety briefing log entries."
+    },
+    "/leave-permits/{permitId}": {
+        "schema": { "$ref": "#/entities/LeavePermit" },
+        "description": "Employee leave permit records."
+    }
+  }
+}

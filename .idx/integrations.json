@@ -1,0 +1,6 @@
+{
+  "firebase_hosting": {
+    "deploymentHostingUrl": "https://aftdeo.web.app"
+  },
+  "cloud_run_deploy": {}
+}
