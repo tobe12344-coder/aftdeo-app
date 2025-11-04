@@ -5,6 +5,18 @@ import {useState, useEffect, type ReactNode} from 'react';
 import {initializeFirebase} from '@/firebase';
 import {FirebaseProvider} from './provider';
 import type {FirebaseContextValue} from './provider';
+import { FirebaseErrorListener } from '@/components/common/FirebaseErrorListener';
+
+// This wrapper ensures the error listener is only ever rendered on the client
+// and within a development environment.
+function ClientWrapper({children}: {children: ReactNode}) {
+  return (
+    <>
+      {children}
+      {process.env.NODE_ENV === 'development' && <FirebaseErrorListener />}
+    </>
+  )
+}
 
 export function FirebaseClientProvider({children}: {children: ReactNode}) {
   const [firebase, setFirebase] = useState<FirebaseContextValue | null>(null);
@@ -22,5 +34,11 @@ export function FirebaseClientProvider({children}: {children: ReactNode}) {
     return null;
   }
 
-  return <FirebaseProvider {...firebase}>{children}</FirebaseProvider>;
+  return (
+    <FirebaseProvider {...firebase}>
+      <ClientWrapper>
+        {children}
+      </ClientWrapper>
+    </FirebaseProvider>
+  );
 }
