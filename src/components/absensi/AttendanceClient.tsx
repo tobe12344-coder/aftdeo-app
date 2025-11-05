@@ -77,7 +77,7 @@ export default function AttendanceClient({ employees }: AttendanceClientProps) {
     if (!firestore || !selectedEmployee) return null;
     // Query for permits for the selected employee that are currently 'On Leave'
     return query(
-      collection(firestore, 'leave-permits'), 
+      collection(firestore, 'leave-permits') as CollectionReference<LeavePermit>, 
       where('employeeId', '==', selectedEmployee),
       where('status', '==', 'On Leave')
     );
