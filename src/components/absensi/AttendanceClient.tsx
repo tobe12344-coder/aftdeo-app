@@ -23,7 +23,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, type CollectionReference } from 'firebase/firestore';
 import { handleAttendanceAction, updateAttendance } from '@/firebase/firestore/attendance';
 import { Skeleton } from '../ui/skeleton';
 import { FileText, QrCode, Calendar as CalendarIcon, MoreHorizontal, Edit } from 'lucide-react';
@@ -67,7 +67,8 @@ export default function AttendanceClient({ employees }: AttendanceClientProps) {
 
   const attendanceQuery = useMemoFirebase(() => {
     if (!firestore || !selectedDateString) return null;
-    return query(collection(firestore, 'attendance'), where('date', '==', selectedDateString));
+    const attendanceCollection = collection(firestore, 'attendance') as CollectionReference<AttendanceRecord>;
+    return query(attendanceCollection, where('date', '==', selectedDateString));
   }, [firestore, selectedDateString]);
 
   const { data: attendanceRecords, loading: loadingAttendance } = useCollection<AttendanceRecord>(attendanceQuery);
