@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -67,7 +66,7 @@ import {
 
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, type CollectionReference } from 'firebase/firestore';
 import { addWaste, updateWaste, deleteWaste } from '@/firebase/firestore/waste';
 import { Skeleton } from '../ui/skeleton';
 import WasteBalanceSheet from './WasteBalanceSheet';
@@ -103,7 +102,7 @@ export default function LimbahClient() {
 
   const wasteQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'waste'), orderBy('tanggalMasuk', 'desc'));
+    return query(collection(firestore, 'waste') as CollectionReference<WasteData>, orderBy('tanggalMasuk', 'desc'));
   }, [firestore]);
 
   const { data: wasteData, loading } = useCollection<WasteData>(wasteQuery);
@@ -471,3 +470,5 @@ export default function LimbahClient() {
     </>
   );
 }
+
+    

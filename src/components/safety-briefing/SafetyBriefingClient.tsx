@@ -9,7 +9,7 @@ import { id as indonesiaLocale } from 'date-fns/locale';
 
 import type { SafetyBriefing, Employee } from '@/lib/types';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, type CollectionReference } from 'firebase/firestore';
 import { addSafetyBriefing } from '@/firebase/firestore/safety-briefing';
 
 import { useToast } from '@/hooks/use-toast';
@@ -53,7 +53,7 @@ export default function SafetyBriefingClient({ employees }: SafetyBriefingClient
 
   const briefingsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'safety-briefings'), orderBy('timestamp', 'desc'));
+    return query(collection(firestore, 'safety-briefings') as CollectionReference<SafetyBriefing>, orderBy('timestamp', 'desc'));
   }, [firestore]);
 
   const { data: briefings, loading } = useCollection<SafetyBriefing>(briefingsQuery);
@@ -188,3 +188,5 @@ export default function SafetyBriefingClient({ employees }: SafetyBriefingClient
     </div>
   );
 }
+
+    

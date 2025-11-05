@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '../ui/separator';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { addGuest } from '@/firebase/firestore/guests';
-import { collection, query, orderBy, Timestamp, where } from 'firebase/firestore';
+import { collection, query, orderBy, Timestamp, where, type CollectionReference } from 'firebase/firestore';
 import { useState, useRef, useEffect } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { FileText, Eraser } from 'lucide-react';
@@ -58,7 +58,7 @@ export default function GuestbookClient() {
     const endDate = endOfMonth(selectedDate);
 
     return query(
-      collection(firestore, 'guests'), 
+      collection(firestore, 'guests') as CollectionReference<Guest>, 
       where('timestamp', '>=', Timestamp.fromDate(startDate)),
       where('timestamp', '<=', Timestamp.fromDate(endDate)),
       orderBy('timestamp', 'desc')
@@ -415,3 +415,5 @@ export default function GuestbookClient() {
     </div>
   );
 }
+
+    

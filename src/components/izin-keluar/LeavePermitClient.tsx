@@ -10,7 +10,7 @@ import SignatureCanvas from 'react-signature-canvas';
 
 import type { LeavePermit, Employee, AttendanceRecord } from '@/lib/types';
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, orderBy, where } from 'firebase/firestore';
+import { collection, query, orderBy, where, type CollectionReference } from 'firebase/firestore';
 import { addLeavePermit, updateLeavePermitStatus, confirmReturn, addSecuritySignature } from '@/firebase/firestore/leave-permits';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -79,7 +79,7 @@ export default function LeavePermitClient({ employees }: LeavePermitClientProps)
     const attendanceQuery = useMemoFirebase(() => {
         if (!firestore || !watchedEmployeeId || !watchedDate) return null;
         return query(
-            collection(firestore, 'attendance'),
+            collection(firestore, 'attendance') as CollectionReference<AttendanceRecord>,
             where('employeeId', '==', watchedEmployeeId),
             where('date', '==', watchedDate)
         );
@@ -109,7 +109,7 @@ export default function LeavePermitClient({ employees }: LeavePermitClientProps)
 
     const permitsQuery = useMemoFirebase(() => {
         if (!firestore) return null;
-        return query(collection(firestore, 'leave-permits'), orderBy('timestamp', 'desc'));
+        return query(collection(firestore, 'leave-permits') as CollectionReference<LeavePermit>, orderBy('timestamp', 'desc'));
     }, [firestore]);
 
     const { data: permitRecords, loading } = useCollection<LeavePermit>(permitsQuery);
@@ -679,3 +679,5 @@ export default function LeavePermitClient({ employees }: LeavePermitClientProps)
         </div>
     );
 }
+
+    

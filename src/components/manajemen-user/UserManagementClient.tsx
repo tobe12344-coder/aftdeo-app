@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useMemoFirebase } from '@/firebase';
 import { useCollection, useFirestore } from '@/firebase';
 import type { AppUser } from '@/lib/types';
-import { collection, query } from 'firebase/firestore';
+import { collection, query, type CollectionReference } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Skeleton } from '../ui/skeleton';
@@ -21,7 +20,7 @@ export default function UserManagementClient() {
         if (!firestore) return null;
         // This query fetches all documents from the 'users' collection.
         // It requires Firestore security rules to allow the 'list' operation for admins.
-        return query(collection(firestore, 'users'));
+        return query(collection(firestore, 'users') as CollectionReference<AppUser>);
     }, [firestore]);
 
     const { data: users, loading, error } = useCollection<AppUser>(usersQuery);
@@ -172,4 +171,5 @@ export default function UserManagementClient() {
     );
 }
 
+    
     

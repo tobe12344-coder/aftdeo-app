@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -35,7 +34,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, type CollectionReference } from 'firebase/firestore';
 import { addSarpras } from '@/firebase/firestore/sarpras';
 import { Skeleton } from '../ui/skeleton';
 
@@ -54,7 +53,7 @@ export default function SarprasClient() {
 
   const sarprasQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'sarpras'), orderBy('name', 'asc'));
+    return query(collection(firestore, 'sarpras') as CollectionReference<SarprasItem>, orderBy('name', 'asc'));
   }, [firestore]);
 
   const { data: items, loading } = useCollection<SarprasItem>(sarprasQuery);
@@ -190,4 +189,5 @@ export default function SarprasClient() {
   );
 }
 
+    
     

@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useMemoFirebase } from '@/firebase';
 import { useCollection, useFirestore } from '@/firebase';
-import { collection, query, where, Timestamp } from 'firebase/firestore';
+import { collection, query, where, Timestamp, type CollectionReference } from 'firebase/firestore';
 import type { AttendanceRecord, WasteData, Guest } from '@/lib/types';
 import { employees } from '@/lib/data';
 
@@ -19,19 +19,19 @@ export default function AdminDashboardClient() {
   // Queries
   const attendanceQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'attendance'), where('date', '==', todayString));
+    return query(collection(firestore, 'attendance') as CollectionReference<AttendanceRecord>, where('date', '==', todayString));
   }, [firestore, todayString]);
 
   const wasteQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'waste'));
+    return query(collection(firestore, 'waste') as CollectionReference<WasteData>);
   }, [firestore]);
 
   const guestQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    return query(collection(firestore, 'guests'), where('timestamp', '>=', Timestamp.fromDate(sevenDaysAgo)));
+    return query(collection(firestore, 'guests') as CollectionReference<Guest>, where('timestamp', '>=', Timestamp.fromDate(sevenDaysAgo)));
   }, [firestore]);
 
 
@@ -76,3 +76,5 @@ export default function AdminDashboardClient() {
     </div>
   );
 }
+
+    

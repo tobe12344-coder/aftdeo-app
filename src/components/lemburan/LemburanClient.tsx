@@ -10,7 +10,7 @@ import 'jspdf-autotable';
 
 import type { OvertimeRecord, Employee } from '@/lib/types';
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, type CollectionReference } from 'firebase/firestore';
 import { addOvertime, updateOvertime, deleteOvertime } from '@/firebase/firestore/overtime';
 
 import { useToast } from '@/hooks/use-toast';
@@ -78,7 +78,7 @@ export default function LemburanClient({ employees }: LemburanClientProps) {
 
     const overtimeQuery = useMemoFirebase(() => {
         if (!firestore) return null;
-        return query(collection(firestore, 'overtime'), orderBy('date', 'desc'));
+        return query(collection(firestore, 'overtime') as CollectionReference<OvertimeRecord>, orderBy('date', 'desc'));
     }, [firestore]);
 
     const { data: overtimeRecords, loading } = useCollection<OvertimeRecord>(overtimeQuery);
@@ -551,3 +551,5 @@ export default function LemburanClient({ employees }: LemburanClientProps) {
     </div>
   );
 }
+
+    
