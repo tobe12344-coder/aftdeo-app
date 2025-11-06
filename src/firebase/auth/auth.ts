@@ -25,23 +25,21 @@ export async function signup(auth: Auth, email: string, password: string) {
     photoURL: '',
   };
 
-  try {
-    // Await the setDoc operation to ensure it completes or throws.
-    await setDoc(userRef, userData);
-    return user;
-  } catch (error) {
-    console.error("Error setting user document:", error);
-    // Create and emit a detailed permission error
+  // We are not awaiting the setDoc call directly. Instead, we chain a .catch()
+  // to handle potential permission errors without blocking the UI.
+  // The error is then emitted globally for a centralized listener to handle.
+  setDoc(userRef, userData).catch(serverError => {
     const permissionError = new FirestorePermissionError({
-      path: userRef.path,
-      operation: 'create',
-      requestResourceData: userData,
+        path: userRef.path,
+        operation: 'create',
+        requestResourceData: userData,
     });
+    // Emit the detailed error for the development overlay.
     errorEmitter.emit('permission-error', permissionError);
-    // We re-throw the original error to ensure the signup promise is rejected
-    // and can be caught by the calling function in the UI.
-    throw error;
-  }
+  });
+
+  // Return the user immediately for a responsive UI, assuming optimistic update.
+  return user;
 }
 
 export async function login(auth: Auth, email: string, password: string) {
