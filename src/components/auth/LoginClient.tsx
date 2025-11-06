@@ -34,6 +34,8 @@ function getFriendlyErrorMessage(error: FirebaseError): string {
             return 'Format email tidak valid.';
         case 'auth/weak-password':
             return 'Password terlalu lemah. Gunakan minimal 6 karakter.';
+        case 'auth/network-request-failed':
+            return 'Gagal terhubung ke server. Periksa koneksi internet Anda.';
         default:
             console.error('Unhandled Firebase Auth Error:', error);
             return 'Terjadi kesalahan yang tidak diketahui. Silakan coba beberapa saat lagi.';
