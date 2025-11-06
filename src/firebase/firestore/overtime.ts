@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -13,7 +12,7 @@ import { errorEmitter } from '../error-emitter';
 import { FirestorePermissionError } from '../errors';
 import type { OvertimeRecord } from '@/lib/types';
 
-export async function addOvertime(firestore: Firestore, overtimeData: Omit<OvertimeRecord, 'id'>) {
+export function addOvertime(firestore: Firestore | null, overtimeData: Omit<OvertimeRecord, 'id'>) {
   if (!firestore) {
     console.error('Firestore is not initialized');
     return;
@@ -30,7 +29,7 @@ export async function addOvertime(firestore: Firestore, overtimeData: Omit<Overt
   });
 }
 
-export async function updateOvertime(firestore: Firestore, id: string, overtimeData: Partial<Omit<OvertimeRecord, 'id'>>) {
+export function updateOvertime(firestore: Firestore | null, id: string, overtimeData: Partial<Omit<OvertimeRecord, 'id'>>) {
   if (!firestore) {
     console.error('Firestore is not initialized');
     return;
@@ -47,7 +46,7 @@ export async function updateOvertime(firestore: Firestore, id: string, overtimeD
   });
 }
 
-export async function deleteOvertime(firestore: Firestore, id: string) {
+export function deleteOvertime(firestore: Firestore | null, id: string) {
   if (!firestore) {
     console.error('Firestore is not initialized');
     return;

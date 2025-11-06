@@ -16,7 +16,7 @@ type SarprasInput = {
   lastMaintenance: string;
 };
 
-export async function addSarpras(firestore: Firestore, sarprasData: SarprasInput) {
+export function addSarpras(firestore: Firestore | null, sarprasData: SarprasInput) {
   if (!firestore) {
     console.error('Firestore is not initialized');
     return;

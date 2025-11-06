@@ -13,8 +13,8 @@ import type { AttendanceRecord, Employee } from '@/lib/types';
 
 type AttendanceAction = 'clockIn' | 'clockOut';
 
-export async function handleAttendanceAction(
-  firestore: Firestore,
+export function handleAttendanceAction(
+  firestore: Firestore | null,
   type: AttendanceAction,
   employee: Employee,
   date: string,
@@ -22,6 +22,10 @@ export async function handleAttendanceAction(
   notes: string,
   existingRecord?: AttendanceRecord
 ) {
+  if (!firestore) {
+    console.error('Firestore is not initialized');
+    return;
+  }
   const attendanceCollection = collection(firestore, 'attendance');
 
   if (existingRecord?.id) {
@@ -69,7 +73,11 @@ export async function handleAttendanceAction(
   }
 }
 
-export async function updateAttendance(firestore: Firestore, id: string, data: Partial<AttendanceRecord>) {
+export function updateAttendance(firestore: Firestore | null, id: string, data: Partial<AttendanceRecord>) {
+    if (!firestore) {
+      console.error('Firestore is not initialized');
+      return;
+    }
     const docRef = doc(firestore, 'attendance', id);
     updateDoc(docRef, data).catch(serverError => {
         const permissionError = new FirestorePermissionError({

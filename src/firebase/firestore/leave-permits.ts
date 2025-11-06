@@ -20,7 +20,7 @@ type LeavePermitInput = {
   purpose: string;
 };
 
-export async function addLeavePermit(firestore: Firestore, permitData: LeavePermitInput) {
+export function addLeavePermit(firestore: Firestore | null, permitData: LeavePermitInput) {
   if (!firestore) {
     console.error('Firestore is not initialized');
     return;
@@ -43,7 +43,7 @@ export async function addLeavePermit(firestore: Firestore, permitData: LeavePerm
     });
 }
 
-export async function updateLeavePermitStatus(firestore: Firestore, id: string, status: 'Approved' | 'Rejected' | 'Butuh Klarifikasi', approvedBy: string) {
+export function updateLeavePermitStatus(firestore: Firestore | null, id: string, status: 'Approved' | 'Rejected' | 'Butuh Klarifikasi', approvedBy: string) {
   if (!firestore) {
     console.error('Firestore is not initialized');
     return;
@@ -61,8 +61,8 @@ export async function updateLeavePermitStatus(firestore: Firestore, id: string, 
   });
 }
 
-export async function addSecuritySignature(
-    firestore: Firestore, 
+export function addSecuritySignature(
+    firestore: Firestore | null, 
     id: string, 
     signature: string, 
     actualLeaveTime: string
@@ -88,8 +88,8 @@ export async function addSecuritySignature(
   });
 }
 
-export async function confirmReturn(
-    firestore: Firestore,
+export function confirmReturn(
+    firestore: Firestore | null,
     id: string,
     actualReturnTime: string
 ) {

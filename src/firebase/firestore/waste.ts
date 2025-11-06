@@ -23,10 +23,9 @@ type WasteInput = {
     catatan?: string;
 };
 
-export async function addWaste(firestore: Firestore, wasteData: WasteInput) {
+export function addWaste(firestore: Firestore | null, wasteData: WasteInput) {
   if (!firestore) {
-    const err = new Error('Firestore is not initialized');
-    console.error(err);
+    console.error('Firestore is not initialized');
     return;
   }
   const wasteCollection = collection(firestore, 'waste');
@@ -41,7 +40,7 @@ export async function addWaste(firestore: Firestore, wasteData: WasteInput) {
   });
 }
 
-export async function updateWaste(firestore: Firestore, id: string, wasteData: Partial<WasteInput>) {
+export function updateWaste(firestore: Firestore | null, id: string, wasteData: Partial<WasteInput>) {
   if (!firestore) {
     console.error('Firestore is not initialized');
     return;
@@ -58,7 +57,7 @@ export async function updateWaste(firestore: Firestore, id: string, wasteData: P
   });
 }
 
-export async function deleteWaste(firestore: Firestore, id: string) {
+export function deleteWaste(firestore: Firestore | null, id: string) {
   if (!firestore) {
     console.error('Firestore is not initialized');
     return;

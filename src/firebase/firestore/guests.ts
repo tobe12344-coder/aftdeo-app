@@ -20,12 +20,14 @@ type GuestInput = {
   signature: string;
 };
 
-export async function addGuest(firestore: Firestore, guestData: GuestInput) {
+export function addGuest(firestore: Firestore | null, guestData: GuestInput) {
+  if (!firestore) {
+    console.error('Firestore is not initialized');
+    return;
+  }
   const guestCollection = collection(firestore, 'guests');
   const dataWithTimestamp = { ...guestData, timestamp: serverTimestamp() };
   
-  // By not awaiting the addDoc and only chaining a .catch, we let the UI proceed optimistically.
-  // The error will be caught and emitted globally by our listener.
   addDoc(guestCollection, dataWithTimestamp).catch(serverError => {
     const permissionError = new FirestorePermissionError({
       path: guestCollection.path,
@@ -33,6 +35,5 @@ export async function addGuest(firestore: Firestore, guestData: GuestInput) {
       requestResourceData: dataWithTimestamp,
     });
     errorEmitter.emit('permission-error', permissionError);
-    // We don't re-throw here anymore, so it won't be caught by a local try/catch.
   });
 }

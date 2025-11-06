@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -18,7 +17,11 @@ type SafetyBriefingInput = {
   notes?: string;
 };
 
-export async function addSafetyBriefing(firestore: Firestore, briefingData: SafetyBriefingInput) {
+export function addSafetyBriefing(firestore: Firestore | null, briefingData: SafetyBriefingInput) {
+  if (!firestore) {
+    console.error('Firestore is not initialized');
+    return;
+  }
   const briefingCollection = collection(firestore, 'safety-briefings');
   const dataWithTimestamp = { ...briefingData, timestamp: serverTimestamp() };
   
