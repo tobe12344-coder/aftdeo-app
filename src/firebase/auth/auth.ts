@@ -43,11 +43,6 @@ export async function signup(auth: Auth, email: string, password: string) {
 }
 
 export async function login(auth: Auth, email: string, password: string) {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
-  } catch (error) {
-    console.error("Error logging in: ", error);
-    throw error;
-  }
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  return userCredential.user;
 }
