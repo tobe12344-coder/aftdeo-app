@@ -38,7 +38,7 @@ service cloud.firestore {
     }
 
     /**
-     * @description Checks if the user's role is admin.
+     * @description Checks if the user's role is admin by reading their own user document.
      * @path /users/{userId}
      * @allow User with role "admin" (read/write)
      * @deny User without "admin" role (read/write)
