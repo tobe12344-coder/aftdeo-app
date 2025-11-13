@@ -15,6 +15,9 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { initializeApp, getApps, App } from 'firebase-admin/app';
 import { credential } from 'firebase-admin';
 import { firebaseConfig } from '@/firebase/config';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+
 
 // Initialize Firebase Admin SDK
 let adminApp: App;
@@ -75,14 +78,17 @@ const updateUserFlow = ai.defineFlow(
       return { success: false, message: 'Invalid input: UID and data are required.' };
     }
 
-    try {
-      const userRef = db.collection('users').doc(uid);
-      await userRef.update(data);
-      return { success: true, message: 'User updated successfully.' };
-    } catch (error: any) {
-      console.error('[Admin Flow] Error updating user:', error);
-      // Return a more generic error message to the client.
-      return { success: false, message: `Failed to update user: ${error.message}` };
-    }
+    const userRef = db.collection('users').doc(uid);
+
+    await userRef.update(data).catch(serverError => {
+        const permissionError = new FirestorePermissionError({
+            path: userRef.path,
+            operation: 'update',
+            requestResourceData: data,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
+
+    return { success: true, message: 'User updated successfully.' };
   }
 );
